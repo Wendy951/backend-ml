@@ -84,14 +84,18 @@ public List<VentaEntity> obtenerTodos(){
         return repository.save(venta);
         //Aqui pueden ir todas las validaciones
     }
-//Eliminar una venta (solo si esta PENDIENTE, y devolviendo el stock)
+//Eliminar una venta (solo el cliente dueño, solo si esta PENDIENTE, y devolviendo el stock)
      @Transactional
-    public void eliminarVenta(Long id) {
+    public void eliminarVenta(Long id, String email) {
         VentaEntity venta = repository.findById(id)
         .orElseThrow(() -> new RuntimeException("No se puede eliminar"));
 
+        if(venta.getCliente() == null || !venta.getCliente().getEmail().equals(email)){
+            throw new RuntimeException("No puedes cancelar una compra que no es tuya");
+        }
+
         if(!"PENDIENTE".equals(venta.getEstadoPago())){
-            throw new RuntimeException("Solo se pueden eliminar ventas en estado PENDIENTE");
+            throw new RuntimeException("Solo se pueden cancelar compras en estado PENDIENTE");
         }
 
         for (DetalleVentaEntity detalle : venta.getDetalles()) {
