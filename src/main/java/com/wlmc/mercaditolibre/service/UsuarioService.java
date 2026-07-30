@@ -38,21 +38,19 @@ public class UsuarioService {
             usuario.setDireccion(request.getDireccion());
             usuario.setTelefono(request.getTelefono());
 
-            Rol rol = Rol.ROLE_CLIENTE;//Defaul cliente
-            if(request.getRol() != null && request.getRol().equalsIgnoreCase("ROLE_ADMIN")) {
-                rol = Rol.ROLE_ADMIN;
-            }
+            // El registro público siempre crea cuentas de Cliente.
+            // (Antes se podía mandar rol:"ROLE_ADMIN" en la petición y el backend lo aceptaba sin validar nada)
+            Rol rol = Rol.ROLE_CLIENTE;
             usuario.setRol(rol);
             UsuarioEntity saveUsuario = usuarioRepository.save (usuario);
 
-            if(rol == Rol.ROLE_CLIENTE){
-                ClienteEntity cliente = new ClienteEntity();
-                cliente.setNombre(request.getNombre());
-                cliente.setEmail(request.getUsername());
-                cliente.setDireccion(request.getDireccion());
-                cliente.setTelefono(request.getTelefono());
-                clienteRepository.save(cliente);
-            }
+            ClienteEntity cliente = new ClienteEntity();
+            cliente.setNombre(request.getNombre());
+            cliente.setEmail(request.getUsername());
+            cliente.setDireccion(request.getDireccion());
+            cliente.setTelefono(request.getTelefono());
+            clienteRepository.save(cliente);
+
             return saveUsuario;
         }
 
