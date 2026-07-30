@@ -73,11 +73,16 @@ public ResponseEntity<?> crearVenta(@RequestBody VentaEntity venta,
         return ResponseEntity.ok(service.ObtenerPorId(id));//200 ok
     }
     
-    //eliminar por id 
+    //eliminar por id (solo el cliente dueño puede cancelar su compra pendiente)
     @DeleteMapping("/{id}")
-    public ResponseEntity<VentaEntity> eliminar(@PathVariable Long id) {
-    service.eliminarVenta(id);
-    return ResponseEntity.noContent().build();//204 no content
+    public ResponseEntity<?> eliminar(@PathVariable Long id, Principal principal) {
+        try{
+            String email = principal.getName();
+            service.eliminarVenta(id, email);
+            return ResponseEntity.noContent().build();//204 no content
+        }catch(RuntimeException e){
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
 }
 //Agregar
 @PostMapping("/guardar")
